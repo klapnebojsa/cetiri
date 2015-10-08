@@ -1,2 +1,2 @@
-cmdhistory=["(a-test)"]
+cmdhistory=["(a-test)" "(foo 5)" "(foo)" "(foo \\"ll\\")"]
 eclipse.preferences.version=1
