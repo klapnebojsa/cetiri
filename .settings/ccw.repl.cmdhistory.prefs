@@ -1,2 +1,2 @@
-cmdhistory=["(a-test)" "(foo 5)" "(foo)" "(foo \\"ll\\")"]
+cmdhistory=["(a-test)" "(foo 5)" "(foo)" "(foo \\"ll\\")" "((slurp (io/resource \\"examples/openclinaction/ch04/hello-kernel.cl\\")))" "(slurp cnn.com)" "(slurp \\"http\://cnn.com\\")"]
 eclipse.preferences.version=1
