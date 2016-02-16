@@ -35,12 +35,12 @@
                    hello-kernel (kernel prog "hello_kernel")
                    read-complete (event)
                    ]
-      ;(println "dev1: " dev)
-      ;(println "ctx1: " ctx)
-      ;(println "cqueue1: " cqueue) 
-      ;(println "prog1: " prog)
-      ;(println "hello-kernel1: " hello-kernel)
-      ;(println "read-complete1: " read-complete)
+      (println "dev1: " dev)
+      (println "ctx1: " ctx)
+      (println "cqueue1: " cqueue) 
+      (println "prog1: " prog)
+      (println "hello-kernel1: " hello-kernel)
+      (println "read-complete1: " read-complete)
 
       (set-args! hello-kernel cl-msg)
       (enq-nd! cqueue  hello-kernel work-sizes)
