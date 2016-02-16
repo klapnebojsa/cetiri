@@ -12,7 +12,10 @@
 (alter-var-root
   (var uncomplicate.clojurecl.core/*opencl-2*)
   (fn [f]  false))
-
+(def data-file (io/file
+                 (io/resource 
+                   "examples/hello-kernel.cl" )))
+"src/cetiri/core/hello-kernel.cl"
 (let [notifications (chan)
       follow (register notifications)work-sizes (work-size [1])
       host-msg (direct-buffer 16)
@@ -75,13 +78,13 @@
       
       
      )
-    (catch Exception e (println "Greska uuu: " (.getMessage e))))
+    (catch Exception e (println "Greska 11111111: " (.getMessage e))))
   )
 
 (println "drugi deo")
 
-(import 'java.net.URL)
-(def cnn (URL. "https://github.com/uncomplicate/clojurecl/blob/master/test/clojure/uncomplicate/clojurecl/examples/openclinaction/ch04.clj"))
+;(import 'java.net.URL)
+;(def cnn (URL. "https://github.com/uncomplicate/clojurecl/blob/master/test/clojure/uncomplicate/clojurecl/examples/openclinaction/ch04.clj"))
 ;---------------------------------------------------------------------------------------
 (let [notifications (chan)
       follow (register notifications)]
@@ -90,7 +93,7 @@
   ;(println "follow: " follow)
 
   ;(
-    (println "konji")
+    ;(println "konji")
     (try
      (with-release [dev (first (devices (first (platforms))))
                     ctx (context [dev])
@@ -98,17 +101,18 @@
        ;)
      ;(catch Exception e (println "Greska: " (.getMessage e)))) 
     
-      ;(println "dev: " dev)
-      ;(println "ctx: " ctx)
-      ;(println "cqueue: " cqueue)
-      (.getHost cnn)       
+      (println "dev: " dev)
+      (println "ctx: " ctx)
+      (println "cqueue: " cqueue)
+      ;(.getHost cnn)       
     (facts
      "Section 4.1, Page 69."
      (let [host-msg (direct-buffer 16)
            work-sizes (work-size [1])        
-           program-source (slurp cnn)
+           program-source 
+           (slurp (io/resource "examples/hello-kernel.cl" ))
            ]
-       ;(println "program-source: " program-source)       
+       (println "program-source 2222: " program-source)       
        (with-release [cl-msg (cl-buffer ctx 16 :write-only)
                       prog (build-program! (program-with-source ctx [program-source]))
                       hello-kernel (kernel prog "hello_kernel")
@@ -134,8 +138,8 @@
            host-b (float-array [2])
            host-out (float-array 1)
            work-sizes (work-size [1])
-           program-source (slurp cnn)
-           ;(slurp (io/resource "examples/openclinaction/ch04/double-test.cl"))
+           program-source
+           (slurp (io/resource "examples/double-test.cl"))
            ]
        (with-release [cl-a (cl-buffer ctx (* 2 Float/BYTES) :read-only)
                       cl-b (cl-buffer ctx (* 2 Float/BYTES) :read-only)
@@ -174,8 +178,8 @@
      "Section 4.4.4, Page 85."
      (let [host-data (byte-array 16)
            work-sizes (work-size [1])
-           program-source (slurp cnn)
-           ;(slurp (io/resource "examples/openclinaction/ch04/vector-bytes.cl"))
+           program-source
+           (slurp (io/resource "examples/vector-bytes.cl"))
            ]
        (with-release [cl-data (cl-buffer ctx 16 :write-only)
                       prog (build-program! (program-with-source ctx [program-source]))
@@ -193,4 +197,4 @@
     
     ;)
   )
-          (catch Exception e (println "Greska: " (.getMessage e)))))
+          (catch Exception e (println "Greska 222222: " (.getMessage e)))))
