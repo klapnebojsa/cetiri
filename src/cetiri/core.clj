@@ -13,69 +13,113 @@
   (var uncomplicate.clojurecl.core/*opencl-2*)
   (fn [f]  false))
 
-(let [notifications1 (chan)
-      follow1 (register notifications1)work-sizes (work-size [1])
+(let [notifications (chan)
+      follow (register notifications)work-sizes (work-size [1])
       host-msg (direct-buffer 16)
       program-source
       "__kernel void hello_kernel(__global char16 *msg) {\n    *msg = (char16)('H', 'e', 'l', 'l', 'o', ' ',
    'k', 'e', 'r', 'n', 'e', 'l', '!', '!', '!', '\\0');\n}\n"
       ]
-  (println "notifications: " notifications1)
-  (println  "follow: " follow1)
+  (println "notifications: " notifications)
+  (println  "follow: " follow)
   (println "work-sizes: " work-sizes)  
   (println "host-msg: " host-msg)  
   (println "program-source: " program-source)  
   
   (try
     (with-release [dev (first (devices (first (platforms))))
-                   ctx (context [dev])
+                  ctx (context [dev])
                    cqueue (command-queue ctx dev)
                    cl-msg (cl-buffer ctx 16 :write-only)
                    prog (build-program! (program-with-source ctx [program-source]))
-                   hello-kernel (kernel prog "hello_kernel")]
+                   hello-kernel (kernel prog "hello_kernel")
+                   ;read-complete (event)
+                   ]
       (println "dev: " dev)
       (println "ctx: " ctx)
       (println "cqueue: " cqueue) 
       (println "prog: " prog)
       (println "hello-kernel: " hello-kernel)
-      
+      ;(println "read-complete: " read-complete)
+
       (set-args! hello-kernel cl-msg)
       (enq-nd! cqueue  hello-kernel work-sizes)
       (enq-read! cqueue cl-msg host-msg)
       (apply str (map char
-                      (wrap-byte-seq int8 (byte-seq host-msg)))))
-    (catch Exception e (println "Greska: " (.getMessage e)))))
+                      (wrap-byte-seq int8 (byte-seq host-msg))))
+      
+      
+   #_(facts
+     "Section 4.1, Page 69."
+     (let [host-msg (direct-buffer 16)
+           work-sizes (work-size [1])
+           program-source
+           (slurp (io/resource "examples/openclinaction/ch04/hello-kernel.cl"))]
+      (println "host-msg: " host-msg)
+      (println "work-sizes: " work-sizes)
+      (println "program-source: " program-source)        
+       
+       
+       (with-release [cl-msg (cl-buffer ctx 16 :write-only)
+                      prog (build-program! (program-with-source ctx [program-source]))
+                      hello-kernel (kernel prog "hello_kernel")
+                      read-complete (event)]
+
+         (set-args! hello-kernel cl-msg) => hello-kernel
+         (enq-nd! cqueue hello-kernel work-sizes) => cqueue
+         (enq-read! cqueue cl-msg host-msg read-complete) => cqueue
+         (follow read-complete host-msg) => notifications
+         (apply str (map char
+                         (wrap-byte-seq int8 (byte-seq (:data (<!! notifications))))))
+         => "Hello kernel!!!\0")))      
+      
+      
+     )
+    (catch Exception e (println "Greska uuu: " (.getMessage e))))
+  )
 
 (println "drugi deo")
 
-
+(import 'java.net.URL)
+(def cnn (URL. "https://github.com/uncomplicate/clojurecl/blob/master/test/clojure/uncomplicate/clojurecl/examples/openclinaction/ch04.clj"))
+;---------------------------------------------------------------------------------------
 (let [notifications (chan)
       follow (register notifications)]
   
   (println "notifications: " notifications)
   (println "follow: " follow)
 
-  (
+  ;(
     (println "konji")
     (try
      (with-release [dev (first (devices (first (platforms))))
                     ctx (context [dev])
-                    cqueue (command-queue ctx dev)])
-     (catch Exception e (println "Greska: " (.getMessage e)))) 
+                    cqueue (command-queue ctx dev)]
+       ;)
+     ;(catch Exception e (println "Greska: " (.getMessage e)))) 
     
-    (println "dev: ") 
-  
+      (println "dev: " dev)
+      (println "ctx: " ctx)
+      (println "cqueue: " cqueue)
+      (.getHost cnn)       
     (facts
      "Section 4.1, Page 69."
      (let [host-msg (direct-buffer 16)
-           work-sizes (work-size [1])
-           program-source
-           (slurp (io/resource "examples/openclinaction/ch04/hello-kernel.cl"))]
+           work-sizes (work-size [1])        
+           program-source (slurp cnn)
+           ]
+       (println "program-source: " program-source)       
        (with-release [cl-msg (cl-buffer ctx 16 :write-only)
                       prog (build-program! (program-with-source ctx [program-source]))
                       hello-kernel (kernel prog "hello_kernel")
-                      read-complete (event)]
-
+                      read-complete (event)
+                      ]
+         
+      (println "cl-msg: " cl-msg)
+      (println "prog: " prog)
+      (println "hello-kernel: " hello-kernel)         
+      (println "read-complete: " read-complete) 
+      
          (set-args! hello-kernel cl-msg) => hello-kernel
          (enq-nd! cqueue hello-kernel work-sizes) => cqueue
          (enq-read! cqueue cl-msg host-msg read-complete) => cqueue
@@ -90,8 +134,9 @@
            host-b (float-array [2])
            host-out (float-array 1)
            work-sizes (work-size [1])
-           program-source
-           (slurp (io/resource "examples/openclinaction/ch04/double-test.cl"))]
+           program-source (slurp cnn)
+           ;(slurp (io/resource "examples/openclinaction/ch04/double-test.cl"))
+           ]
        (with-release [cl-a (cl-buffer ctx (* 2 Float/BYTES) :read-only)
                       cl-b (cl-buffer ctx (* 2 Float/BYTES) :read-only)
                       cl-out (cl-buffer ctx (* 2 Float/BYTES) :write-only)
@@ -129,8 +174,9 @@
      "Section 4.4.4, Page 85."
      (let [host-data (byte-array 16)
            work-sizes (work-size [1])
-           program-source
-           (slurp (io/resource "examples/openclinaction/ch04/vector-bytes.cl"))]
+           program-source (slurp cnn)
+           ;(slurp (io/resource "examples/openclinaction/ch04/vector-bytes.cl"))
+           ]
        (with-release [cl-data (cl-buffer ctx 16 :write-only)
                       prog (build-program! (program-with-source ctx [program-source]))
                       vector-bytes (kernel prog "vector_bytes")]
@@ -141,5 +187,10 @@
          (enq-read! cqueue cl-data host-data) => cqueue
          (seq host-data) => (if (endian-little dev)
                               [3 2 1 0 7 6 5 4 11 10 9 8 15 14 13 12]
-                              (range 16))))))
+                              (range 16)))))
+    
+    
+    
+    ;)
   )
+          (catch Exception e (println "Greska: " (.getMessage e)))))
