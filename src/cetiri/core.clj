@@ -20,11 +20,11 @@
       "__kernel void hello_kernel(__global char16 *msg) {\n    *msg = (char16)('H', 'e', 'l', 'l', 'o', ' ',
    'k', 'e', 'r', 'n', 'e', 'l', '!', '!', '!', '\\0');\n}\n"
       ]
-  (println "notifications: " notifications)
-  (println  "follow: " follow)
-  (println "work-sizes: " work-sizes)  
-  (println "host-msg: " host-msg)  
-  (println "program-source: " program-source)  
+  ;(println "notifications: " notifications)
+  ;(println  "follow: " follow)
+  ;(println "work-sizes: " work-sizes)  
+  ;(println "host-msg: " host-msg)  
+  ;(println "program-source: " program-source)  
   
   (try
     (with-release [dev (first (devices (first (platforms))))
@@ -35,12 +35,12 @@
                    hello-kernel (kernel prog "hello_kernel")
                    read-complete (event)
                    ]
-      (println "dev1: " dev)
-      (println "ctx1: " ctx)
-      (println "cqueue1: " cqueue) 
-      (println "prog1: " prog)
-      (println "hello-kernel1: " hello-kernel)
-      (println "read-complete1: " read-complete)
+      ;(println "dev1: " dev)
+      ;(println "ctx1: " ctx)
+      ;(println "cqueue1: " cqueue) 
+      ;(println "prog1: " prog)
+      ;(println "hello-kernel1: " hello-kernel)
+      ;(println "read-complete1: " read-complete)
 
       (set-args! hello-kernel cl-msg)
       (enq-nd! cqueue  hello-kernel work-sizes)
@@ -86,8 +86,8 @@
 (let [notifications (chan)
       follow (register notifications)]
   
-  (println "notifications: " notifications)
-  (println "follow: " follow)
+  ;(println "notifications: " notifications)
+  ;(println "follow: " follow)
 
   ;(
     (println "konji")
@@ -98,9 +98,9 @@
        ;)
      ;(catch Exception e (println "Greska: " (.getMessage e)))) 
     
-      (println "dev: " dev)
-      (println "ctx: " ctx)
-      (println "cqueue: " cqueue)
+      ;(println "dev: " dev)
+      ;(println "ctx: " ctx)
+      ;(println "cqueue: " cqueue)
       (.getHost cnn)       
     (facts
      "Section 4.1, Page 69."
