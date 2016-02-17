@@ -111,6 +111,7 @@
            work-sizes (work-size [1])        
            program-source 
            (slurp (io/resource "examples/hello-kernel.cl" ))
+           ;"__kernel void hello_kernel(__global char16 *msg) {\n    *msg = (char16)('H', 'e', 'l', 'l', 'o', ' ',   'k', 'e', 'r', 'n', 'e', 'l', '!', '!', '!', '\\0');\n}\n"
            ]
        (println "program-source 2222: " program-source)       
        (with-release [cl-msg (cl-buffer ctx 16 :write-only)
@@ -140,6 +141,7 @@
            work-sizes (work-size [1])
            program-source
            (slurp (io/resource "examples/double-test.cl"))
+           ;"#ifdef FP_64\n#pragma OPENCL EXTENSION cl_khr_fp64: enable\n#endif\n__kernel void double_test(__global float* a,\n                          __global float* b,\n                          __global float* out) {\n#ifdef FP_64\n    double c = (double)(*a / *b);\n    *out = (float)c;\n#else\n    *out = *a * *b;\n#endif\n}\n"
            ]
        (with-release [cl-a (cl-buffer ctx (* 2 Float/BYTES) :read-only)
                       cl-b (cl-buffer ctx (* 2 Float/BYTES) :read-only)
@@ -180,6 +182,7 @@
            work-sizes (work-size [1])
            program-source
            (slurp (io/resource "examples/vector-bytes.cl"))
+           ;"__kernel void vector_bytes(__global uchar16 *test) {\n    uint4 vec = (global uint4) (0x00010203, 0x04050607, 0x08090A0B, 0x0C0D0E0F);\n    uchar *p = &vec;\n    *test = (uchar16)(*p, *(p+1), *(p+2), *(p+3), *(p+4), *(p+5), *(p+6),\n                      *(p+7), *(p+8), *(p+9), *(p+10), *(p+11), *(p+12),\n                     *(p+13), *(p+14), *(p+15));\n}\n"
            ]
        (with-release [cl-data (cl-buffer ctx 16 :write-only)
                       prog (build-program! (program-with-source ctx [program-source]))
